@@ -38,23 +38,51 @@ jobs:
           openjdk-11-jdk \
           unzip \
           zip \
-          zlib1g-dev
+          zlib1g-dev \
+          wget
 
-    - name: Install Buildozer
+    - name: Install Buildozer and dependencies
       run: |
         pip install --upgrade pip
         pip install buildozer cython virtualenv
 
-    - name: Build with Buildozer
+    - name: Setup Android SDK and accept licenses
       run: |
-        buildozer android debug
+        mkdir -p ~/.buildozer/android/platform/android-sdk
+        cd ~/.buildozer/android/platform/android-sdk
+        
+        # Download command line tools
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
+        unzip -q commandlinetools-linux-9477386_latest.zip
+        mv cmdline-tools tools
+        mkdir -p licenses
+        
+        # Accept all Android licenses
+        echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > licenses/android-sdk-license
+        echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> licenses/android-sdk-license  
+        echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" >> licenses/android-sdk-license
+        echo "84831b9409646a918e30573bab4c9c91346d8abd" > licenses/android-sdk-preview-license
+        echo "601085b94cd77f0b54ff86406957099ebe79c4d6" > licenses/intel-android-extra-license
+        
+        # Set environment variables
+        echo "ANDROID_HOME=$PWD" >> $GITHUB_ENV
+        echo "ANDROID_SDK_ROOT=$PWD" >> $GITHUB_ENV
+        
+        # Install required packages
+        yes | ./tools/bin/sdkmanager --sdk_root=$PWD "build-tools;33.0.0"
+        yes | ./tools/bin/sdkmanager --sdk_root=$PWD "platforms;android-33"
+        yes | ./tools/bin/sdkmanager --sdk_root=$PWD "platform-tools"
+        yes | ./tools/bin/sdkmanager --sdk_root=$PWD "ndk;25.1.8937393"
+
+    - name: Build APK with Buildozer
+      run: |
+        buildozer -v android debug
       env:
-        # Speed up build and avoid memory issues
         BUILDODER_CI: "1"
-        BUILDODER_CMAKE: "1"
+        BUILDODER_CMAKE: "1" 
         BUILDODER_CCACHE: "1"
 
-    - name: Upload APK artifact
+    - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: torro-pro-app
@@ -62,7 +90,7 @@ jobs:
         retention-days: 90
 
     - name: Upload build logs
-      if: always()
+      if: failure()
       uses: actions/upload-artifact@v4
       with:
         name: build-logs
