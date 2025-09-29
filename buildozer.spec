@@ -7,7 +7,7 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,ttf,json
 
 version = 1.0.0
-requirements = python3,kivy,yt-dlp,requests,pillow,urllib3,certifi
+requirements = python3,kivy==2.3.0,yt-dlp==2023.11.16,requests==2.31.0,pillow==10.0.1,urllib3==2.0.7,certifi==2023.7.22
 
 [buildozer]
 log_level = 2
@@ -34,14 +34,8 @@ android.no-compile-pyo = True
 android.allow_backup = True
 android.adaptive_icon_foreground = True
 
-# Presplash (comment out if no image)
-# presplash.filename = %(source.dir)s/assets/presplash.png
-
-# Icon (comment out if no image)
-# icon.filename = %(source.dir)s/assets/icon.png
+# Skip problematic modules
+android.skip_grp_module = True
 
 # Build options
 android.accept_sdk_license = True
-
-[buildozer.android]
-sdkmanager_path = /home/runner/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
