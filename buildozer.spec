@@ -24,22 +24,24 @@ android.permissions = INTERNET,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE,ACCE
 # Bootstrap
 android.bootstrap = sdl2
 
-# Architecture (arm64 is better for modern devices)
+# Architecture
 android.arch = arm64-v8a
 
-# Presplash
-presplash.filename = %(source.dir)s/assets/presplash.png
-
-# Icon
-icon.filename = %(source.dir)s/assets/icon.png
-
-# Preserve .py files for debugging
+# Preserve .py files
 android.no-compile-pyo = True
 
-# Extra build settings
+# App features
 android.allow_backup = True
 android.adaptive_icon_foreground = True
 
-# Important: Add these lines for yt-dlp compatibility
-android.add_src = include
-android.add_resources = include
+# Presplash (comment out if no image)
+# presplash.filename = %(source.dir)s/assets/presplash.png
+
+# Icon (comment out if no image)
+# icon.filename = %(source.dir)s/assets/icon.png
+
+# Build options
+android.accept_sdk_license = True
+
+[buildozer.android]
+sdkmanager_path = /home/runner/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
