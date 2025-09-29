@@ -1,0 +1,72 @@
+name: Build Torro Pro APK
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          python3-pip \
+          autoconf \
+          automake \
+          build-essential \
+          ccache \
+          cmake \
+          gettext \
+          git \
+          libffi-dev \
+          libltdl-dev \
+          libssl-dev \
+          libtool \
+          openjdk-11-jdk \
+          unzip \
+          zip \
+          zlib1g-dev
+
+    - name: Install Buildozer
+      run: |
+        pip install --upgrade pip
+        pip install buildozer cython virtualenv
+
+    - name: Build with Buildozer
+      run: |
+        buildozer android debug
+      env:
+        # Speed up build and avoid memory issues
+        BUILDODER_CI: "1"
+        BUILDODER_CMAKE: "1"
+        BUILDODER_CCACHE: "1"
+
+    - name: Upload APK artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: torro-pro-app
+        path: bin/*.apk
+        retention-days: 90
+
+    - name: Upload build logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-logs
+        path: |
+          .buildozer
+          bin/*.log
+        retention-days: 30
